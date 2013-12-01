@@ -15,6 +15,14 @@ main = hakyll $ do
      -    compile copyFileCompiler
      -}
 
+    create ["rss.xml"] $ do
+        route idRoute
+        compile $ do
+            let feedCtx = postCtx `mappend` bodyField "description"
+            posts <- fmap (take 10) . recentFirst =<<
+                loadAllSnapshots "posts/*" "content"
+            renderRss feedConfig feedCtx posts
+
     match "css/*" $ do
         route   idRoute
         compile compressCssCompiler
@@ -30,6 +38,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompilerWith defaultHakyllReaderOptions customWriterOptions
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
+            >>= saveSnapshot "content"
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
 
@@ -49,7 +58,6 @@ main = hakyll $ do
  -                >>= relativizeUrls
  -}
 
-
     match "index.html" $ do
         route idRoute
         compile $ do
@@ -62,6 +70,10 @@ main = hakyll $ do
                 >>= applyAsTemplate indexCtx
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
+
+    match "favicon.ico" $ do
+        route idRoute
+        compile copyFileCompiler
 
     match "templates/*" $ compile templateCompiler
 
@@ -78,3 +90,14 @@ customWriterOptions = defaultHakyllWriterOptions
         writerHTMLMathMethod = MathJax "https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
         writerExtensions = S.insert Ext_tex_math_dollars (writerExtensions defaultHakyllWriterOptions)
     }
+
+feedConfig :: FeedConfiguration
+feedConfig = FeedConfiguration
+    {
+        feedTitle = "/usr/sbin/blog",
+        feedDescription = "Alex Beal's personal blog.",
+        feedAuthorName = "Alex Beal",
+        feedAuthorEmail = "",
+        feedRoot = "http://usrsb.in"
+    }
+
