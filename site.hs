@@ -4,6 +4,7 @@ import           Data.Monoid (mappend)
 import           Hakyll
 import           Text.Pandoc.Options
 import qualified Data.Set               as S
+import           Data.Map
 
 
 --------------------------------------------------------------------------------
@@ -28,14 +29,14 @@ main = hakyll $ do
         compile compressCssCompiler
 
     match "pages/*.md" $ do
-        route   $ setExtension "html"
+        route   $ metadataRoute $ \m -> customRoute (\i -> m ! "permalink" ++ ".html")
         compile $ pandocCompilerWith defaultHakyllReaderOptions customWriterOptions
             >>= loadAndApplyTemplate "templates/page.html"    defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
     match "posts/*.md" $ do
-        route $ setExtension "html"
+        route   $ metadataRoute $ \m -> customRoute (\i -> m ! "permalink" ++ ".html")
         compile $ pandocCompilerWith defaultHakyllReaderOptions customWriterOptions
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= saveSnapshot "content"
