@@ -1,0 +1,21 @@
+title: The Mathematics of Catching Maniacs
+author: Alex Beal
+date: 12-17-2012
+type: post
+permalink: detecting-the-crazies
+
+Since the Sandy Hook shooting, there has been no shortage of proposals concerning what should be done to prevent further massacres. Some are calling for more gun control, such as a renewal of the [ban on assault weapons](http://www.washingtonpost.com/blogs/wonkblog/wp/2012/12/15/what-would-meaningful-action-on-gun-control-look-like/). Others believe the problem is [insufficient access to mental health resources](http://www.huffingtonpost.com/2012/12/19/sandy-hook-mental-health-program_n_2334017.html). The goal, of course, is to keep weapons out of the hands of maniacs, and treat high risk individuals before they resort to violence. The ideal solution would stop maniacs before they strike, while at the same time not inconveniencing those who are well-adjusted. Unfortunately, the mathematics of such an ideal solution doesn't add up.
+
+The problem lies with the fact that mass killers are so rare. Since 1980, there have been anywhere from [5 to 55 offenders per year](http://boston.com/community/blogs/crime_punishment/2012/08/no_increase_in_mass_shootings.html).{%ref%}Fox, James. N.p.. Web. 20 Dec 2012. <http://boston.com/community/blogs/crime_punishment/2012/08/no_increase_in_mass_shootings.html>.{%end%} While that number might seem unacceptably high, the fact is, on average mass killers make up only 0.0000001% of the US population.{%ref%}Assuming an average of 30 killers per year, and a population of 300 million.{%end%} This rarity makes them incredibly difficult to detect.
+
+The reason for this is the following equation, which is one form of Bayes' theorem:
+
+{%displaymath%}
+\mathbf{P}(A|B) = \frac{\mathbf{P}(B|A)\mathbf{P}(A)}{\mathbf{P}(B|\neg A)\mathbf{P}(\neg A)+\mathbf{P}(B|A)\mathbf{P}(A)}
+{%end%}
+
+What does it do? It describes how to update a belief in light of new evidence. It can, for example, tell a patient the probability that he has cancer given a positive biopsy. The biopsy is a new piece of evidence that updates (in this case, increases) the chance that the patient has cancer.
+
+This also provides an interesting framework for evaluating the effectiveness of an ideal gun or mental health policy. Suppose that ACME Pharmaceuticals announces a medical breakthrough that can, with 99% accuracy, identify mass murderers. All it takes is a swab of the skin, and drop of patented Killer Detection Formula. The 99% accuracy touted by ACME is so impressive to lawmakers that background checks for firearms purchases are replaced with a quick swab. The nation rejoices that the problem of mass shootings has finally been solved. 
+
+Or has it? With Bayes' theorem, it's possible to calculate the probability that someone is a mass murderer given a positive test result. Most people are surprised to find out that the answer is **not** 99%. How is this possible?

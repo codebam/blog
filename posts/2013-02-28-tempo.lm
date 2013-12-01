@@ -1,0 +1,19 @@
+title: Tracking the <strike>Mailbox</strike> Tempo App Reservation System
+author: Alex Beal
+date: 02-28-2013
+type: post
+permalink: tempo-graph
+
+I've made a hobby of reverse engineering and tracking app reservation systems. I did it a few weeks ago [for the Mailbox App](/mailbox-graph.html). Here it is for [Tempo Smart Calendar](http://tempo.ai/). As with the Mailbox graphs, a script automatically hits the reservation API every 5 minutes and the graphs are updated every 15 minutes.
+
+<a id="graphs">
+## The Graphs
+</a>
+
+<strike>Updated every 15 minutes.</strike> **No longer updated.** I have been admitted, so the reservation endpoint no longer returns useful data. Click to enlarge. [Data](http://media.usrsb.in/tempo/log.csv).
+
+<a href="http://media.usrsb.in/tempo/rate.png"><img src="http://media.usrsb.in/tempo/rate.png" width="600px"></a>
+
+<a href="http://media.usrsb.in/tempo/zoomedin.png"><img src="http://media.usrsb.in/tempo/zoomedin.png" width="600px"></a>
+
+<a href="http://media.usrsb.in/tempo/zoomedout.png"><img src="http://media.usrsb.in/tempo/zoomedout.png" width="600px"></a>

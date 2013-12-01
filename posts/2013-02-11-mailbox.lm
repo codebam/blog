@@ -1,0 +1,26 @@
+title: Tracking the Mailbox App Reservation System
+author: Alex Beal
+date: 02-11-2013
+type: post
+permalink: mailbox-graph
+
+Since the release of [Mailbox](http://www.mailboxapp.com/), there has been an incredible response. Currently, there are nearly 800,000 people waiting in line to use the application, and for those waiting in line, the biggest question is "How long until I get access?" The Mailbox team has been pretty vague in responding to questions about this, answering with an [unlabeled graph](http://www.mailboxapp.com/reservations/?p=1#how-were-rolling-out-mailbox). While this is understandable, it left me curious. How long until my number comes up? And at what rate are they letting people in? 
+
+Answering these questions is easy. All you have to do is look at the data, and all the data is there. For about a day, I manually logged my place in line, resulting in [a painstakingly compiled Google spreadsheet](https://docs.google.com/spreadsheet/ccc?key=0AomGTgVWFh3WdFFBMk1OR01ROWY4eGdraTJYZW1yMUE&usp=sharing). From it, I could calculate how fast the line was moving, but it was error prone and opening up the app several times a day got old.
+
+The next evolution of this process was of course to automate it. By capturing the traffic coming out of my iPhone, I was able to figure out how to query the reservation endpoint manually, giving my data a 5 minute resolution.{%ref%}I'll leave the details of this as an exercise to the reader, and let Mailbox release the details if they wish.{%end%} From here, I was only a few Python scripts away from drawing some pretty graphs.
+
+<a id="graphs">
+## The Graphs
+</a>
+
+Updated every 15 minutes. Click to enlarge. [Data](http://media.usrsb.in/mailbox/log.csv).
+
+<a href="http://media.usrsb.in/mailbox/rate.png"><img src="http://media.usrsb.in/mailbox/rate.png" width="800px"></a>
+
+<a href="http://media.usrsb.in/mailbox/zoomedin.png"><img src="http://media.usrsb.in/mailbox/zoomedin.png" width="800px"></a>
+
+<a href="http://media.usrsb.in/mailbox/zoomedout.png"><img src="http://media.usrsb.in/mailbox/zoomedout.png" width="800px"></a>
+
+## Notes
+{%ref-footer%}

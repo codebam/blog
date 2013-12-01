@@ -1,0 +1,29 @@
+title: Hire Me!
+author: Alex Beal
+date: 12-7-2012
+type: page
+permalink: hire-me
+
+Has something I've written piqued your interest? Think I'd make a good addition to your team? I'll be graduating this Spring (May 2013), and will be looking for a full time permanent position. Take a look at my resume, and contact me over Twitter or email.
+
+- [Resume](http://media.usrsb.in/files/resume.pdf)
+- [Twitter](http://twitter.com/beala)
+- [GPG Public Key](http://media.usrsb.in/files/pub.asc)
+
+<script>
+function alertEmail(){alert('nyr\x85yornyMtznvy;p|z'.split('').map(function(c){return String.fromCharCode(c.charCodeAt()-13);}).join(''))
+}
+</script>
+
+##Email:
+
+
+```
+/* My email address. Hit 'Eval!' below to run. */
+alert(
+  'nyr\x85yornyMtznvy;p|z'.split('').map(function(c){
+      return String.fromCharCode(c.charCodeAt()-13);
+    }).join('')
+);
+```
+<a href="#" onclick="alertEmail()">Eval!</a>

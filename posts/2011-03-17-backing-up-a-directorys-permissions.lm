@@ -1,0 +1,55 @@
+title: Backing Up a Directory's Permissions
+author: Alex Beal
+date: 03-17-2011
+type: post
+permalink: Backing-Up-a-Directory-s-Permissions
+
+
+We've all done it before, and if it hasn't happened to you yet, it's only a matter of time. You're attempting to set the permissions on a directory and and you're doing something along the lines of `sudo chmod -R 660 ./foobar`. You execute the command only to realize that you're in the wrong directory or you've mistyped the directory's name, and now your permissions are totally clobbered. If you've kept good backups, this is annoying, but not devastating. Either you could completely restore the files, or perhaps you could write a script which would copy the old file permissions back over. An easier alternative would be to plan ahead and backup the file permissions before disaster strikes. Here's a script that will do that for you:
+
+```sh
+    #!/bin/bash
+
+    #Check that we've been passed a directory.
+    if [ ! -d "$1" ]; then
+       echo "$1 is not a directory. Exiting."
+       exit 1
+    fi
+    
+    #Check if we've been passed a relative or absolute
+    #path. If it's relative, store $PWD in $DIR. We'll need
+    #this later to build the absolute path.
+    echo "$1" | grep -q '^/'
+    if [ $? == 0 ]; then
+       DIR='' 
+    else
+       DIR="$PWD/"
+    fi
+
+    #Generate the header comments for the script.
+    echo "#!/bin/bash"
+    echo "#"
+    echo "#This script will restore permissions under $DIR$1"
+    echo "#to how they were on `date`"
+    echo "#"
+    
+    #Loop through the given directory's tree and 
+    #echo the commands to restore the permissions and owner.
+    find "$1" -print0 | while read -d $'\0' i
+    do
+       echo chmod `stat -c %a "$i"` \"$DIR$i\"
+       echo chown `stat -c "%U:%G" "$i"` \"$DIR$i\"
+    done
+```
+
+What this script does is generate another script, which, when run, will restore a directory's permissions, owner, and group (and also the permissions, owner, and group of any files and directories under it). Suppose you drop this script into a file called `backup.sh` and you want to backup the permissions of a directory called `/home/you/mystuff`. Here's how you'd do it:
+
+    ./backup.sh /home/you/mystuff > mystuff-backup.sh
+
+Now when you execute `mystuff-backup.sh`, all of `/home/you/mystuff`'s permissions will be restored. Easy.
+ 
+There is one security caveat you should keep in mind. The resultant script will contain the names of all the files and subdirectories in the directory tree. The upshot is that anyone who has read access to the script will be able to see this information. If this is a problem, you should adjust the script's permissions accordingly.
+ 
+The script itself is pretty straight forward. On line 4, we tell a relative path from an absolute path by seeing if it's prefixed with a forward slash. If it is, then it's absolute. If it isn't, then it's relative. We'll need this information later to build the absolute path to all the files. The next step is to loop through the files, which is a bit tricky. On line 28, we need to pipe the output of `find` to a `while read` because the more intuitive `for` loop construct doesn't handle spaces and newlines in filenames properly (of course, anyone who puts newlines in a filename needs to be thrown into the [sarlacc](http://www.starwars.com/databank/creature/sarlacc/)). In fact, you may just want to memorize that line, as it's a common problem with a far from obvious solution. Finally, on line 30 and 31, we read the file's permission and owners with `stat`, which is a handy command that, among other things, outputs file information in a user definable format.
+ 
+So there you have it. [Download the script here.](http://media.usrsb.in/dir-perm/backupperm.sh) Now go forth and make this a cron job.

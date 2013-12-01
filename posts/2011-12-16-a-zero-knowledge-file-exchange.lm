@@ -1,0 +1,93 @@
+title: A Zero-Knowledge File Exchange
+author: Alex Beal
+date: 12-16-2011
+type: post
+permalink: A-Zero-Knowledge-File-Exchange
+
+##The Problem##
+Alice wants to send Bob an encrypted file over the Internet. Alice's first attempt is to encrypt the file using 7-zip and send it as an attachment, but quickly realizes that Bob now has no way of decrypting the file. Alice could email the decryption key, but realizes that this is insecure. Why encrypt the file in the first place if she is going to email the key in plaintext? Another solution is to use public key encryption, but contrary to everything we've ever read about Alice and Bob, neither knows how to use GPG. Alex, a dashing computer-scientist-in-training and intrepid narrator of this post, decides to craft a solution. Here is his proposal.
+
+##Goals##
+The goal is to create an online service with the following characteristics. It will:
+
+1. Facilitate file exchanges between users.
+2. Not require any accounts.
+3. Not require downloaded software.
+4. Be zero-knowledge. The web service itself must not have access to the decrypted file.
+
+In order to meet requirement (4), the service will need to store only encrypted files. This is easy enough. The service can let Alice encrypt the file in her browser, and then host the file, but then we still have the original problem to deal with. Once Bob retrieves the file, how can he access the decryption key? It seems that we have a chicken-or-the-egg problem. Alice and Bob can't communicate securely because they don't share a key, and they can't share a key because they can't communicate securely. If only there were some way for two parties to negotiate an encryption key over an insecure channel. Luckily, computer scientists have anticipated this need and come up with the [Diffie-Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+
+##The Site##
+Here's a sketch of how the service will look to Alice and Bob. In the next section, I'll explain the implementation.
+
+1. Alice initiates a file exchange by going to the website and entering the following information:
+	* Bob's email and cell.
+	* Her email.
+	* A secret password of her choosing (Alice's secret key).
+2. The site sends the following to Bob:
+	* An email containing a link.
+	* A text message containing a secret code.
+3. Bob receives the email and link.
+	* He navigates to the link and is prompted for the code he received in the text. He enters it.
+	* He is granted access to a form, and he enters a secret password of his choosing (Bob's secret key). This doesn't need to be the same as Alice's secret key.
+4. Alice receives an email saying the website is ready for her upload.
+	* She clicks the link, enters her secret password, and selects her file. Her file gets encrypted in the browser and uploaded to the website.
+5. Bob gets an email saying the download is ready with a link to a retrieval webpage.
+	* He clicks the link and enters his secret password.
+	* It's decrypted in the browser, and saved to his hard drive.
+
+Readers familiar with the D-H key exchange may already see what's going on here. The real trick is in steps (3) and (4) where Alice and Bob are both able to generate a shared secret key without the web service having access to it. Bob and Alice can then encrypt files using the shared secret, and no one but them will be able to decrypt the files.
+
+##Implementation Magic##
+So, how does this work? This is the same story, but with the implementation details inserted:
+
+1. Alice initiates a file transfer with Bob, and enters their contact details. The web page uses Javascript or a Java applet to generate the following encryption details:
+	* A shared prime *p* and a generator number *g*. This gets sent to the web service for storage.
+	* Alice enters a secret password of her choosing, and it gets hashed into a large 128+ bit integer using something like SHA-2. This is her private key *a* (but she only needs to memorize the password).
+	* In the browser, Alice's public key, *A*, gets calculated. It equals *g^a mod p*. This gets sent to the web service for storage.
+2. The web service sends out the email and text.
+3. Bob gets the email and text.
+	* He enters the secret code from the text into the web page (this will be explained later), and he's granted access to the form.
+	* He enters a secret password of his choosing, which also gets hashed just like Alice's. This is his private key, *b*.
+	* In the browser, Bob's public key, *B*, gets calculated as *g^b mod p*. This gets sent to the web service for storage.
+4. Alice receives an email saying that her file is ready for encryption and upload.
+	* Bob's public key is retrieved, and Alice enters her secret password. In browser, the shared secret is calculated as *B^a mod p*.
+	* The file is encrypted using the shared secret.
+5. Bob gets an email saying the file is ready for retrieval.
+	* Alice's public key is retrieved, and he enters his secret password. The shared secret is calculated from *A^b mod p*.
+	* In browser, the file is decrypted using the secret key, and the file is saved to disk.
+
+Although I still find the process incredible, there's really nothing new about the above procedure. It's simply an implementation of the D-H exchange that hides the details from the users. What's so neat is that the web service and anyone monitoring their communications only ever sees Bob's public key, Alice's public key, the generator and the prime. No one knows Bob's secret key (including Alice!), and no one knows Alice's (including Bob). Without these secret keys, no one, including the web service, can calculate the shared encryption key. The web service is zero-knowledge. Sort of.
+
+##Stuck In The Middle##
+The most glaring vulnerability with the D-H exchange is the possibility of a man-in-the-middle (MITM) attack. This is well documented. If Eve the eavesdropper can intercept and control Bob's or Alice's email channel, then Eve can sit in the middle and pretend to be both Bob and Alice. Eve can generate two shared secrets, one with Bob and one with Alice. Alice, who thinks Eve is Bob, sends the file to Eve. Eve decrypts it, reads it, then re-encrypts it using the secret she has with Bob (who thinks Eve is Alice), and sends it to Bob. The file is stolen and neither Alice nor Bob know that it happened. This raises two issues:
+
+1. If the email channel is insecure, Eve could steal the file.
+2. If the service is evil, then the service can steal the file by doing exactly what Eve did.
+
+The first problem is solved by the text message containing the secret text code that Bob receives. In order for Bob to finish the exchange, he needs to enter the secret text code into the web page. Eve can't do this unless she's hijacked both his email and his phone. So, Eve can't be the woman-in-the-middle because she can access Bob's web page and pretend to be Bob.
+
+The second one is a tough one. A potential solution is for some in-browser code to generate a hash of the public keys (*A*, and *B*). Bob and Alice could then use some out-of-band channel (perhaps over the phone) to compare the hashes. If Eve were in the middle, they'd both have a copy of Eve's key, and the hashes wouldn't match. The issue here is that if the site really is evil, it could simply poison the browser code to do something evil, making this whole out-of-band hash thing moot. Really, the problem is that there's no such thing as a zero-knowledge web site. There has to be some amount of trust between the users and site. One side note is that the site does have a motivation for being honest. As long as it never sees the secret keys, it can't be subpoenaed from anything useful (unless a judge orders it to poison its browser code).
+
+##An Alternative Method##
+Here's an alternative method that might be simpler. It uses public key encryption:
+
+1. Alice initiates a file exchange by entering Bob's email.
+2. Bob gets the email, and navigates to a page that generates a key pair.
+	* The public half of the key pair gets uploaded to the web service. He downloads the private half.
+3. Alice gets an email saying the exchange is ready.
+	* She navigates to the site, which automatically retrieves the public key, encrypts the file, and uploads it.
+4. Bob downloads the file and decrypts it using his private key, in-browser.
+
+The advantage is that it might be simpler to implement. It's really just a way of creating a one-time key pair, and hiding the details from the user. The disadvantage is that Bob has to hold onto a secret key, rather than a passphrase, and the same MITM vulnerability exists (although it could be fixed in a similar way).
+
+##Conclusion##
+That's my first stab at a solution. Although I had a lot of fun dreaming it up, it's not without its disadvantages, and open questions.
+
+1. The potential for MITM attacks introduces unwanted complexity (especially if you don't trust the site). Could this be made more user friendly? Is there another solution?
+2. The entire process is complex, and would probably scare off the exact people it's trying to help. Is there an alternative method that's simpler, but still maintains zero-knowledge?
+3. Is it secure?
+
+I'd love to hear your comments on these points, or anything related.
+
+Also, many thanks for [Cinesias](http://twitter.com/Cinesias) for inspiring me to think about this, and having a bit of a brainstorming session. #FollowFriday
