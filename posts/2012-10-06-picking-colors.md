@@ -235,5 +235,3 @@ One question I have about this last procedure is whether or not it maximizes the
 
 The complete code can be found at this gist: [https://gist.github.com/3848987](https://gist.github.com/3848987)
 
-## Notes
-

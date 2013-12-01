@@ -36,6 +36,3 @@ Finally, there is one last change concerning the beginning of each day. Rather t
 ## Further Work
 
 By now I have hopefully convinced you that Angelean timekeeping is beautiful timekeeping. But much work must be done if it is to be ready by the time of the revolution. So far I have made a landing page for it complete with time and birthday converter: <http://whatstheti.me>. I have also ordered an Arduino kit and plan on making a standalone Angelean clock (my first Arduino project!). Finally, if the [Pebble watch](http://getpebble.com/) ever ships, expect an Angelean app for that.
-
-## Notes
-

@@ -1,8 +1,10 @@
+---
 title: About
 type: page
 author: Alex Beal
 date: 9-15-2012
 permalink: about
+---
 
 ##Basic##
 - **Name:** Alex Beal
