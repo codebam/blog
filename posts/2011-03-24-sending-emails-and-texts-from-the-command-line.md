@@ -1,0 +1,38 @@
+---
+title: Sending Emails and Texts from the Command Line
+author: Alex Beal
+date: 03-24-2011
+type: post
+permalink: Sending-Emails-and-Texts-from-the-Command-Line
+---
+
+Here's a handy way to send emails from the command line:
+
+    echo 'message' | mail -s 'subject' 'email_address'
+
+If you know the recipient's carrier, you can also use it to send text messages from the command line. For example, if the recipient's number is 111-111-1111 and she's on Verizon, you can send her a text message using the following command:
+
+    echo 'Sent from my terminal!' | 
+        mail -s 'Linux is fun' '1111111111@vtext.com'
+
+Once again, the trick here is knowing the domain name of the carrier's [Email-to-SMS Gateway](http://en.wikipedia.org/wiki/SMS_Gateway). In the case of Verizon, it's @vtext.com. Wikipedia has a handy list of other gateways [here](http://en.wikipedia.org/wiki/List_of_SMS_gateways). Another trick is to send yourself an email from the phone, and the phone's SMS gateway will be revealed in the 'from' field.
+ 
+You can use this to create all sorts of fun shell scripts. For example, here's one I wrote recently that tells me whether or not the VPS provider BuyVM has any VPSs in stock:
+
+    #!/bin/bash -
+    
+    echo 'Is BuyVM in stock?'
+    while :; do
+            wget -O - -q http://doesbuyvmhavestock.com/ | grep -i yes
+            if [ $? == 0 ]; then
+                    echo 'Well, what are you waiting for?' | 
+                        mail -s "BuyVM is in stock" "you@example.com"
+                    echo 'Yes!'
+                    exit 0
+            else
+                echo 'No'
+                sleep 15m
+            fi
+    done
+
+It's pretty simple. Every 15 minutes it scrapes the webpage [doesbuyvmhavestock.com](http://doesbuyvmhavestock.com/) and sends me an email if it contains the word 'yes'. Obviously, the success of your own script depends on how well it can parse the webpage. As you can see, my parsing routine (the `grep` on line 5) is pretty primitive.

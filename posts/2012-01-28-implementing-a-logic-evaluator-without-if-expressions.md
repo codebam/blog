@@ -1,0 +1,78 @@
+---
+title: Implementing a Logic Evaluator Without if-expressions or Boolean Operators
+author: Alex Beal
+date: 01-28-2012
+type: post
+permalink: Implementing-a-Logic-Evaluator-Without-if-expressions-or-Boolean-Operators
+---
+
+I've slowly been making my way through [An Overview of the Scala Programming Language](http://www.scala-lang.org/sites/default/files/linuxsoft_archives/docu/files/ScalaOverview.pdf) [PDF], and was struck by this interesting implementation of Booleans:
+
+``` scala
+abstract class Bool {
+	def && (x: => Bool): Bool
+	def || (x: => Bool): Bool
+}
+object False extends Bool {
+	def && (x: => Bool): Bool = this
+	def || (x: => Bool): Bool = x
+}
+object True extends Bool {
+	def && (x: => Bool): Bool = x
+	def || (x: => Bool): Bool = this
+}
+```
+
+If you're not a Scala programmer, don't let the syntax trip you up. It's pretty straightforward. `True` and `False` are singleton objects that inherit from the `abstract class Bool`. Each object implements the `&&` (and) and `||` (or) operators. As you'd expect, they each take a `Bool` as an argument and return a `Bool`. When you execute:
+
+``` scala
+True && False
+```
+
+It applies `True`'s `&&` method to `False`, and correctly returns `x`, which is, in this case, `False`.
+
+What's so interesting about this is the absence of any if-expressions or built-in boolean operators. To illustrate, a less clever, but more obvious implementation would be as follows:
+
+``` scala
+def and(x: Boolean, y: Boolean): Boolean = {
+	if(x)
+		if(y)
+			true
+		else
+			false
+	else
+		false
+}
+```
+
+So, if `x` and `y` are both `true`, return `true	`, otherwise return `false` (Scala returns the value of the last executed expression). It works, but doesn't win any style points. The nested if-expressions are especially ugly.<sup>1<sup>
+
+So, this is a neat way of cutting down on if-expressions. Can it be extended to the other operations? Yes:
+
+``` scala
+object True extends Bool {
+  def && (x: => Bool): Bool = x
+  def || (x: => Bool): Bool = this
+  def unary_! : Bool = False
+  def xor (x: => Bool): Bool = !x
+  def if_ (x: => Bool): Bool = this
+  def iff(x: => Bool): Bool = x
+}
+
+object False extends Bool {
+  def && (x: => Bool): Bool = this
+  def || (x: => Bool): Bool = x
+  def unary_! : Bool = True
+  def xor (x: => Bool): Bool = x
+  def if_ (x: => Bool): Bool = !this
+  def iff(x: => Bool): Bool = !x
+}
+```
+
+One thing I like about this implementation is the pleasing symmetry between `True`'s methods and `False`'s methods. The `unary_!` (not) method is trivially opposite. `True` returns `False` and vice versa, but the symmetry continues throughout `xor`, `if_`, and `iff`. For example, `False`'s `xor` returns its parameter, while `True`'s `xor` returns the opposite of its parameter. `False xor True` returns `True`, whereas `True xor True` returns `False`. I'll leave verifying the rest of these rules as an exercise to the reader.<sup>2</sup>
+
+It's also interesting to compare this to the [State Pattern](http://en.wikipedia.org/wiki/State_pattern), where a state machine is simulated through the use of objects that implement a common interface. Each state is an object, and transitioning between states is as easy as switching between the different objects. Without this pattern, the alternative would be a complex set of if-expressions dictating what you're allowed to do in a certain state, and which states you can switch to given your current state. The State Pattern essentially hides all this behind polymorphism, similar to what's happening in the logic evaluator.
+
+##Notes##
+1. You can cut it down to one if-expression if you're on your toes.
+2. Note that `if_` is backwards. `True if_ False` is the same as `False -> True`, because that's closer to the English.

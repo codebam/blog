@@ -1,12 +1,14 @@
+---
 title: Backing Up Sensitive Data With Secret Sharing
 author: Alex Beal
 date: 02-24-2013
 type: post
 permalink: secret-sharing-backup
+---
 
 Backing up sensitive data can be problematic, as the process of making something redundant increases the risk of it being misplaced or stolen. Encryption can solve this problem, as a stolen backup isn't useful if it's encrypted. The issue, though, is that it only pushes the problem back a step. Now there's an additional piece of information, the encryption key, that needs to be backed up which faces the same issue. Making the key redundant decreases the chance of losing the key, but increases the chance of having it stolen. The key itself is now the piece of sensitive data that needs to be backed up.
 
-One solution to this is secret sharing. What is secret sharing? It's a way of splitting a secret (like an encryption key) into multiple parts. Under a secret sharing scheme, there's a threshold, *t*, and a shares count, *n*. The scheme takes a secret and splits it into *n* parts. The secret can then be recreated by combining at least *t* of the parts (known as *shares*). Less than *t* shares is useless, and cannot be used to recreate the secret. Intuitively, if *n*=10 and *t*=3, then this is like a safe with three keyholes and ten keys, which cannot be opened unless three of the ten keys are applied at the same time.{%ref%}Intuitively, the way this works is by thinking about the space of possible secrets as a 3D space, where each point is a possible secret. You can then think of each share as a plane going through this space. If *n* is ten, then ten planes which intersect the secret point are generated. Only three or more planes are needed to uniquely find the secret point. Less than three will only identify a plane or line of points.{%end%}
+One solution to this is secret sharing. What is secret sharing? It's a way of splitting a secret (like an encryption key) into multiple parts. Under a secret sharing scheme, there's a threshold, *t*, and a shares count, *n*. The scheme takes a secret and splits it into *n* parts. The secret can then be recreated by combining at least *t* of the parts (known as *shares*). Less than *t* shares is useless, and cannot be used to recreate the secret. Intuitively, if *n*=10 and *t*=3, then this is like a safe with three keyholes and ten keys, which cannot be opened unless three of the ten keys are applied at the same time. ^[Intuitively, the way this works is by thinking about the space of possible secrets as a 3D space, where each point is a possible secret. You can then think of each share as a plane going through this space. If *n* is ten, then ten planes which intersect the secret point are generated. Only three or more planes are needed to uniquely find the secret point. Less than three will only identify a plane or line of points.]
 
 This technique has many uses, one of which is making sensitive data redundant. First let's return to the backup scheme without secret sharing. Under this scheme, the data is encrypted and spread across multiple system. The encryption key itself is then also spread across multiple (hopefully different) systems. The issue, of course, is that if even one of the systems storing the key is compromised, the data could potentially be compromised. Now contrast this with a backup system using secret sharing. Here, the data is also encrypted and spread around, but the difference is that rather than spreading the key, the key is split, and the shares are spread around. If the key needs to be backed up to *n* different systems, then *n* shares are created, and each system stores one share. The difference is that now at least *t* of those systems must be compromised before the data is in danger, rather than just one. Additionally, *n*-*t* of those systems can fail without the secret being lost.
 
@@ -15,16 +17,12 @@ Inevitably, secret sharing still pulls in two different directions. Increasing *
 
 The effect of adjusting *t* and *n* can also be understood probabilistically. If there are *n* shares, *t* of which must be compromised to compromise the secret, then the chance of having the secret compromised is:
 
-{%displaymath%}
-P(compromising\; secret) = \sum_{i=t}^{n}\binom{n}{i}p^i(1-p)^{n-i}
-{%end%}
+$$P(compromising\; secret) = \sum_{i=t}^{n}\binom{n}{i}p^i(1-p)^{n-i}$$
 
-Where *p* is the probability a single system will be compromised.{%ref%}This is, of course, a summation over the binomial formula.{%end%}
-{%ref%}This formula also assumes independent events, which probably isn't true. Having one system compromised increases the chance another system will be compromised (maybe because they run similar software).{%end%} On the other hand, the probability that the secret will be lost to a system failure is:
+Where *p* is the probability a single system will be compromised. ^[This is, of course, a summation over the binomial formula.]
+ ^[This formula also assumes independent events, which probably isn't true. Having one system compromised increases the chance another system will be compromised (maybe because they run similar software).] On the other hand, the probability that the secret will be lost to a system failure is:
 
-{%displaymath%}
-P(losing\; secret) = \sum_{i=(n-t)+1}^{n}\binom{n}{i}f^i(1-f)^{n-i}
-{%end%}
+$$P(losing\; secret) = \sum_{i=(n-t)+1}^{n}\binom{n}{i}f^i(1-f)^{n-i}$$
 
 Where *f* is the probability that a single system will fail. From these two formulas, it's possible to see that if your backup systems are insecure, it's best to split the secret into many shares, and then set the number of needed shares high. Even if the probability of a system being compromised is 50%, requiring 80 shares out of 100 makes the probability of compromise 5E-8%. The other side of this coin is that only 20 systems can fail, and if there's a 50% chance a given backup system will fail, then the probability of losing the secret is around 99% (21 or more systems failing).
 
@@ -172,6 +170,3 @@ for share in $shares; do
     i=$((i+1))
 done
 ```
-
-## Notes
-{%ref-footer%}
