@@ -1,0 +1,20 @@
+#!/bin/bash
+
+TITLE=$1
+
+if [ "$TITLE" = "" ]; then
+    echo "Error: no title provided."
+    exit
+fi
+
+FULL_TITLE="`date +%Y-%m-%d`-$TITLE.md"
+POST_PATH="posts/$FULL_TITLE"
+
+echo "---"                      >> $POST_PATH
+echo "title:"                   >> $POST_PATH
+echo "date:`date +%Y-%m-%d`"    >> $POST_PATH
+echo "author: Alex Beal"        >> $POST_PATH
+echo "permalink:"               >> $POST_PATH
+echo "---"                      >> $POST_PATH
+
+vim "$POST_PATH"
