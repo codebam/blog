@@ -25,8 +25,6 @@ Anyway, as you can see, order of operations is key. Dereferencing precedes assig
 4. The pointers are incremented to the next character in the string.
 5. The loop repeats, copying the consecutive characters, including the null character.
 
-It's definitely a cool academic exercise, but it's so obfuscated, that even the order of operations table in the K&R book is of no help. It lists `++` and `*` as having the same precedence. To see what's going on here, we need to go to the C99 spec:
+It's definitely an interesting exercise, but it's so obfuscated, that even the order of operations table in the K&R book is of no help. It lists `++` and `*` as having the same precedence. To see what's going on here, we need to go to the C99 spec:
 
 >The result of the postfix `++` operator is the value of the operand. After the result is obtained, the value of the operand is incremented. (page 75)
-
-It's definitely a bit of black magic. Use this code wisely.

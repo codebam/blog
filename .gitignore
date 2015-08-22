@@ -3,3 +3,5 @@
 _*
 cabal.sandbox.config
 dist
+.DS_Store
+.stack-work

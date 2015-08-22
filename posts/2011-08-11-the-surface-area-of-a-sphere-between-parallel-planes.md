@@ -12,44 +12,53 @@ That was my first thought, at least, and, as it turns out, it's wrong. **The are
  
 First we begin with the formula for the surface area of a function rotated around the x axis from *a* to *b*. If you want an explanation of this equation, the section of my textbook that covers this is actually [posted online \[PDF\]](http://www.stewartcalculus.com/data/ESSENTIAL%20CALCULUS/upfiles/topics/ess_at_06_asr_stu.pdf) by the publishers (also note that this is problem 32 from that chapter).
  
-![Suface Area Formula](http://media.usrsb.in/sa-sphere/1.png)
+![Suface Area Formula](http://media.usrsb.in/sa-sphere/1.png)\
+
  
 Since we are finding the surface area of a sphere, we need the function for a circle, which we will rotate around the x axis, thus producing our sphere. If we can remember back to high school geometry, we'll know that the equation for a sphere is *x2+y2=r2*. We now solve for *y*, and plug it in for *f(x)*, and also find the derivative of *f(x)* and plug it in for *f'(x)*:
  
-![title](http://media.usrsb.in/sa-sphere/2.png)
+![title](http://media.usrsb.in/sa-sphere/2.png)\
+
   
 We now simplify the integral:
  
-![title](http://media.usrsb.in/sa-sphere/3.png)
+![title](http://media.usrsb.in/sa-sphere/3.png)\
+
  
 *f(x)* is moved into the square root:
  
-![title](http://media.usrsb.in/sa-sphere/4.png)
+![title](http://media.usrsb.in/sa-sphere/4.png)\
+
  
 We distribute:
  
-![title](http://media.usrsb.in/sa-sphere/5.png)
+![title](http://media.usrsb.in/sa-sphere/5.png)\
+
  
 More simplification:
  
-![title](http://media.usrsb.in/sa-sphere/6.png)
+![title](http://media.usrsb.in/sa-sphere/6.png)\
  
-![title](http://media.usrsb.in/sa-sphere/7.png)
+![title](http://media.usrsb.in/sa-sphere/7.png)\
+
  
 We now integrate:
  
-![title](http://media.usrsb.in/sa-sphere/8.png)
+![title](http://media.usrsb.in/sa-sphere/8.png)\
  
-![title](http://media.usrsb.in/sa-sphere/9.png)
+![title](http://media.usrsb.in/sa-sphere/9.png)\
  
-![title](http://media.usrsb.in/sa-sphere/10.png)
+![title](http://media.usrsb.in/sa-sphere/10.png)\
+
  
 *b-a* is simply the distance between the two planes, which we call *h*:
  
-![title](http://media.usrsb.in/sa-sphere/11.png)
+![title](http://media.usrsb.in/sa-sphere/11.png)\
+
  
 2r is the diameter of the sphere, which we call d:
  
-![title](http://media.usrsb.in/sa-sphere/12.png)
+![title](http://media.usrsb.in/sa-sphere/12.png)\
+
  
-There you have it. The surface area of a sphere between two parallel planes is equal to *πdh*. It doesn't matter where these planes are in relation to the sphere. All that matters is that both planes intersect the sphere. Cool, huh? No? Ok, fine. Well, I thought it was interesting.
+There you have it. The surface area of a sphere between two parallel planes is equal to *πdh*. It doesn't matter where these planes are in relation to the sphere. All that matters is that both planes intersect the sphere.

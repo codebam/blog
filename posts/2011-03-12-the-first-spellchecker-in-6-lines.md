@@ -26,7 +26,7 @@ That rather ugly 'sed' command will remove all the single quote characters which
 
 And look under /usr/share/dict/words.
 
-    beala@superfly:/usr/share/dict$ wc -l words
+    $ wc -l words
     50253 words
 
 That's a lot of words! Try 'wamerican-insane' if you want a, well, insane number of words.
