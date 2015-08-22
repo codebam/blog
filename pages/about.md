@@ -6,7 +6,7 @@ date: 9-15-2012
 permalink: about
 ---
 
-I'm Alex Beal, a Colorado native and Boulder software developer. I have interests in cryptography, decentralization, and programming languages. I'm excited about the idea of engineering society through software with tools like Tor and Bitcoin, and I'm co-organizer of the [Boulder Meshnet](http://www.bouldermesh.net) initiative. I'm also interested in software reliability, and have a strong interest in better tools and techniques for writing software, such as functional programming (this site is generated with [Hakyll](http://jaspervdj.be/hakyll/)), static analysis, and types. My degrees are in CS and Philosophy from the University of Colorado at Boulder, and I did my [undergraduate thesis](http://media.usrsb.in/files/thesis.pdf) on the dynamic analysis of JavaScript.
+I'm Alex Beal, a Colorado native and Boulder software developer. I have interests in cryptography, decentralization, and programming languages. I'm also interested in software reliability, and have a strong interest in better tools and techniques for writing software, such as functional programming (this site is generated with [Hakyll](http://jaspervdj.be/hakyll/)), static analysis, and types. My degrees are in CS and Philosophy from the University of Colorado at Boulder.
 
 ###Contact###
 
