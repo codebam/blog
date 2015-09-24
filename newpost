@@ -16,5 +16,3 @@ echo "date:`date +%Y-%m-%d`"    >> $POST_PATH
 echo "author: Alex Beal"        >> $POST_PATH
 echo "permalink:"               >> $POST_PATH
 echo "---"                      >> $POST_PATH
-
-vim "$POST_PATH"

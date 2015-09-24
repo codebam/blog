@@ -48,7 +48,7 @@ sup {
     margin: 0 auto;
 }
 
-div .codehilite {
+/*div .codehilite {
     max-width: 600px;
     overflow: auto;
     border-left: 2px solid #00996B;
@@ -56,7 +56,7 @@ div .codehilite {
     padding-left: 10px;
     line-height: 100%;
     font-size: 0.9em;
-}
+}*/
 
 li {
     margin:.5em 0 .5em 0
