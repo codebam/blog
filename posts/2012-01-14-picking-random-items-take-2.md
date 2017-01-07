@@ -1,5 +1,5 @@
 ---
-title: Picking Random Items: Take Two (Hacking Python's Generators)
+title: "Picking Random Items: Take Two (Hacking Python's Generators)"
 author: Alex Beal
 date: 01-14-2012
 type: post

@@ -1,5 +1,5 @@
 ---
-title: Snippet: Power Set
+title: "Snippet: Power Set"
 author: Alex Beal
 date: 2015-09-23
 type: post

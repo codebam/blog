@@ -4,8 +4,8 @@ import           Data.Monoid (mappend)
 import           Hakyll
 import           Text.Pandoc.Options
 import qualified Data.Set               as S
-import           Data.Map
-
+import           Data.Map.Lazy
+import Data.Maybe (fromJust)
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -23,14 +23,14 @@ main = hakyll $ do
         compile compressCssCompiler
 
     match "pages/*.md" $ do
-        route   $ metadataRoute $ \m -> customRoute (\i -> m ! "permalink" ++ ".html")
+        route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/page.html"    defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
     match "posts/*.md" $ do
-        route   $ metadataRoute $ \m -> customRoute (\i -> m ! "permalink" ++ ".html")
+        route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= saveSnapshot "content"
@@ -38,7 +38,7 @@ main = hakyll $ do
             >>= relativizeUrls
 
     match "posts/*.lhs" $ do
-        route   $ metadataRoute $ \m -> customRoute (\i -> m ! "permalink" ++ ".html")
+        route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
         compile $
           --pandocCompilerWith (def {readerExtensions = S.singleton Ext_literate_haskell}) (def {writerExtensions = S.singleton Ext_literate_haskell})
           pandocCompiler

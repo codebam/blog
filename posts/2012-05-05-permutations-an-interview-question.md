@@ -1,5 +1,5 @@
 ---
-title: Permutations: An Interview Question
+title: "Permutations: An Interview Question"
 author: Alex Beal
 date: 05-05-2012
 type: post

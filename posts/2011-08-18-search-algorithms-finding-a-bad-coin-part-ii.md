@@ -1,5 +1,5 @@
 ---
-title: Search Algorithms: Finding a Bad Coin (Part II)
+title: "Search Algorithms: Finding a Bad Coin (Part II)"
 author: Alex Beal
 date: 08-18-2011
 type: post

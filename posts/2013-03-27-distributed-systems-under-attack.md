@@ -1,5 +1,5 @@
 ---
-title: Distributed Systems Under Attack: Bitcoin and the Internet
+title: "Distributed Systems Under Attack: Bitcoin and the Internet"
 author: Alex Beal
 date: 03-27-2013
 type: post

@@ -1,5 +1,5 @@
 ---
-title: A Search Algorithm Puzzle: Finding a Bad Coin
+title: "A Search Algorithm Puzzle: Finding a Bad Coin"
 author: Alex Beal
 date: 08-17-2011
 type: post

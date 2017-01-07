@@ -1,5 +1,5 @@
 ---
-title: Super Bowl Probabilities: The Coin Toss
+title: "Super Bowl Probabilities: The Coin Toss"
 author: Alex Beal
 date: 02-05-2012
 type: post
