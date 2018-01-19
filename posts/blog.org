@@ -1,0 +1,197 @@
+---
+title: MoodBot Analysis
+author: Alex Beal
+date: 2018-01-18
+type: post
+permalink: moodbot
+---
+
+* Introduction
+In August of 2016 I started keeping close track of my mood. I used a technique called [[https://en.wikipedia.org/wiki/Experience_sampling_method][experience sampling]] that I had first heard about in /Thinking, Fast and Slow/. The essence of this technique is to capture data about an experience as the experience is happening rather than reflecting on it after the fact. The main difference between experience sampling and retrospection is that experience sampling does not rely on memory. If I want to answer the question "How was my day?" I don't need to think about my day, recalling the good parts and the bad parts and weighing them, I only need to look at my day's mood curve, and perhaps take the average of its points. This strategy has some important benefits over the retrospective method.
+
+The first benefit is methodological: Experience sampling gives a more accurate picture of how I felt in the moment. I can hardly remember what I had for lunch yesterday, so why should I trust my ability to accurately reflect on my day as a whole? Even worse, these errors in memory aren't random. Many are systematic biases. One example is /duration neglect/ where the duration of an event is ignored when making a retrospective judgment. In other words, if I judge a painful event based purely off memory, I will rate 5 minutes of pain to be the same as 10 minutes of the same pain.[fn:1]
+
+The second reason is that I'm a data nerd and, I find this type of navel-gazing fascinating. Being able to answer questions like "Was I more or less happy before I left my job?" is terribly exciting.
+
+Finally, I can leverage the data when making decisions. There's reason to believe that we're bad at remembering what makes us happy,[fn:2] so if we're trying to optimize for happiness, this is useful data to have.
+
+Without further ado, I present to you over one and a half years of mood data, totaling over 2,400 samples:
+
+#+CAPTION: (Top) Mood samples are aggregated per day and the mean value is plotted. Mood is on a scale of 1 to 5, where higher is better. (Bottom) The number of samples captured on that day.
+[[http://media.usrsb.in/moodbot/mood_over_time.png]]
+
+* Capturing the Data
+The majority of this data was captured over SMS. I periodically received a text message asking me "On a scale 1-5, where 1 is negative and 5 is positive, how are you feeling?" and "What are you doing?". I answered these questions by responding to the message. A common response would be something like "3 work, programming" if my mood was about average and I was programming at work. The idea was to capture my sense of well being in a general way (which I refer to as 'mood'), and also any context that could be affecting it. Mood is of course more than one dimensional, but I didn't want to burden myself with too many questions, so this seemed like a good place to start. A five point scale was used because I didn't believe I could answer consistently on a larger scale, and since I wanted to capture this data over a long period of time, consistency is key. In the end, the five points map to (1) Very negative (2) Negative (3) Neutral (4) Positive and (5) Very positive. In practice, it was easy to place my mood at one of these points, and I reserve (1) and (5) for the extremes. Most days I don't experience either.
+
+#+CAPTION: What a typical MoodBot exchange would look like. I would often skip answering the second question to save time.
+[[http://media.usrsb.in/moodbot/moodbot_message.png]]
+
+** Sampling
+The sampling followed a Bernoulli process. Every five minutes, the service flipped a weighted coin and sent a query if the coin was heads.[fn:4] I chose the Bernoulli distribution because it is memoryless. No matter how many samples have already occurred, the probability that the next period will trigger a sample is the same. This is significant because it made sampling harder to game. Contrast this with a method that, for example, always samples 5 times a day. Once I receive all 5 samples, I know I will not be sampled for the rest of the day and this knowledge might influence my behavior. This is less of a problem for mood sampling, because it's not clear I can or would want to game my mood data, but it's something to keep in mind if you decide to set up your own experience sampling project.
+
+** Technical Details
+The text messages were triggered by a process in AWS that woke up every five minutes and flipped a coin (set to trigger, on average, 10 times per day between 7 AM and 10 PM). Upon success, it used the Twilio API to send a text message. The AWS component was a Lambda procress which stored responses to S3 as text files. This removed the need to leave a server running, saving quite a bit of money. In fact, the Lambda bill was essentially zero making the primary cost Twilio, which averaged around $5 per month.
+
+* Analysis
+When I started this project I had a few questions in mind: First, what contexts affect my mood? Are there certain activities that tend to boost my mood or dampen my mood? If so, perhaps I could maximize the positive activities and minimize the negative. 
+
+Second, how are my moods distributed? Do I spend most of my time in a state of despair, or do I have a generally positive outlook? In some ways, this is a rather frightening question to ask. What if it turned out I had a generally dour demeanor? And what if baseline deameanor is a stable trait that can't easily be changed? I might discover that I'm doomed to a depressive outlook forever. No matter, I'm not the type of person to turn away information. If the result turned out negative, I'd just have to do my best to address it. Maybe that gives a hint as to my actual outlook on life.
+
+Finally, I was also curious to see how major life events impacted my mood. For example, had I been keeping data at the time, would it have been possible to see a major difference in mood between when I was in college and when I entered industry? If so, perhaps this data could help me with decisions about my career. I would have a quantitative way of comparing different periods in my life. Further, it raises philosophical questions about the hedonic treadmill.[fn:hedonic] Perhaps it would turn out that there is no difference and my baseline mood isn't responsive circumstance.
+
+** Mood Distribution
+I'll start with the easy, but perhaps frightening, question. What is my average mood?
+
+#+CAPTION: Distribution summaries for all data.
+|---------+------|
+| Mean    | 2.99 |
+| Std Dev | 0.85 |
+| p25     |    3 |
+| p50     |    3 |
+| p75     |    4 |
+|---------+------|
+
+Happily, this distribution looks good. I don't appear too neurotic, whatever my friends may tell you. My average is about neutral (mean = 2.99) and I spend the majority of my time there, within 1 point of neutral (standard deviation = 0.85). The percentiles tell an even more positive story. I'm slightly biased toward happiness, with the middle 50% of the distribution lying between 3 and 4 (p25 = 3, p75=4). So although life knocks me around a bit, I spend most of my time neutral to happy, and am rarely completely depressed or completely overjoyed.
+
+The histogram below tells a similar story. 1 and 5 are rare. I mostly occupy 2 through 4 with a bias toward 4. Unfortunately, it looks like at the extremes, I'm more biased to negative moods than positive moods.
+
+#+CAPTION: Histogram of moods across all data. Y axis is normalized to 1.
+[[http://media.usrsb.in/moodbot/mood_hist.png]]
+
+Thankfully I do not have to confront the question of a perpetually negative mood. I live life on a mostly even keel. Even so, it's worth wondering if I can further improve my mood. Perhaps I can reduce the 1s a bit, and tip the scale in favor of a few more 5s. In section [[Life Events]] I'll present evidence that suggests real change is possible, although the change is drastic by many standards.
+
+** Cyclical Features
+Rather than viewing the samples as a time series, an alternative is to look at it cyclically. I can use this view to show what the average day or week looks like. To see how the average day looks, I gather up all the samples taken during 8 AM for any day and average them. So a sample taken on January 1st at 8:15 AM will be averaged with a sample taken on January 3rd at 8:45 AM. Then I do the same for 9 AM and so on until I have a 24 hour time series. I've produced that graph below.
+
+#+CAPTION: Samples are bucketed into hours (irrespective of day) and averaged. This is what an average day looks like.
+[[http://media.usrsb.in/moodbot/mood_average_day.png]]
+
+So the average day is about what you'd expect. During working hours, I stay close to neutral with a slight bump in mood around 5 PM when I'd leave the office and come home. After dinner my mood dips as I begin to worry about the next day (or the previous one). It's no surprise to me that the data shows that I'm most emotionally vulnerable in the late evening.
+
+The average week also shows a reasonable pattern.
+
+#+CAPTION: Samples are bucketed into days (irrespective of the date) and averaged. This is what an average week looks like.
+[[http://media.usrsb.in/moodbot/mood_average_weekly.png]]
+
+The work week proceeds at a steady 3, until Saturday when there's a noticeable weekend uptick. Sundays looks slightly less enjoyable, and this makes sense. Sunday is when I'd get a lot of chores and housework done, not to mention the pre-Monday dread.
+
+** Life Events
+Were there any significant life events during the data collection period? Yes, I left my job at a big tech company to take sabbatical (which is still ongoing). Look again at the time series and see if you can spot it:
+
+[[http://media.usrsb.in/moodbot/mood_over_time.png]]
+
+In early September my mood exhibits a distinct shift upward, going below three much less often. That was around the time I announced my resignation, and November 3rd is when I had my last day. It's interesting how much simply /announcing/ my resignation affected my mood despite the fact that I didn't stop working until 8 weeks later. My hypothesis is that just thinking about all the great stuff I was going to do on sabbatical was enough to give everything a positive glow. Further, I believe my stress level decreased knowing that I was on the way out.
+
+Given this distinct shift, I repeated many of the previous analyses, but split the data on September 3rd. In the histogram and distribution summaries below, there's a distinct shift away from 1s and 2s and toward 3s and 4s. My average mood increases by nearly half a point and the 25th percentile moves from 2 to 3.
+
+#+CAPTION: Distribution summary data split between pre and post resignation periods. 
+|         | Pre-resignation | Post-resignation |
+|---------+-----------------+------------------|
+| Mean    |            2.95 |             3.32 |
+| Std Dev |            0.85 |             0.70 |
+| p25     |               2 |                3 |
+| p50     |               3 |                3 |
+| p75     |               4 |                4 |
+
+#+CAPTION: Histogram of moods before and after announcing my resignation.
+[[http://media.usrsb.in/moodbot/mood_count_emplyoment_split.png]]
+
+In the cyclical data, I spend most of the day above a three, and don't experience such a significant dip in the evening after work. I believe part of this was just feeling exhausted after a long day and ruminating about that day's interactions.
+
+#+CAPTION: Mood on an average day, split between pre-resignation and post-resignation time periods.
+[[http://media.usrsb.in/moodbot/mood_average_day_split.png]]
+
+In the weekly data, my baseline is again higher. Interestingly, I don't experience as much of a weekend uptick, most likely because everyday feels like a weekend.
+
+#+CAPTION: Mood during an average week, split between pre-resignation and post-resignation.
+[[http://media.usrsb.in/moodbot/mood_average_weekly_split.png]]
+
+I worry that this section paints an unreasonably bad picture of my previous job, and indeed I worry that if any former colleagues are reading this they'll conclude that I must have hated every moment of it. Well, let me set the record straight: Nothing could be further from the truth. I don't think I exagerate when I say that I believe I had one of the best jobs on the planet. I was well compensated. There were never risks to my health or safety (unless you can count the free snacks in the fully stocked kitchen as a risk to my health). And the work was often, although not always, intellectually stimulating. Despite that, it appears to have exerted a downward pressure on my mood. What am I to make of that? I think the correct conclusion to draw is that work is... /work/. As much as I'd like to say "I love my career so much I'd do it for free" that isn't true. Even the best job is not without tedium, stress, and exhaustion. Perhaps this is a lesson in setting expecations.
+
+I should also mention that going into this, it wasn't at all clear that sabbatical would improve my mood. There's plenty of folk wisdom that points in the opposite direction. The arguments go something like this: Work gives you something to dedicate yourself to, and through that it gives your life meaning. Without the strucuture it imposes and goals it sets, you'll feel aimless and squander what little time you have. Needless to say, this hasn't turned out to be the case with me. The key, I believe, is that I spend my time on intellectually satisfying projects, and that I'm using this time for personal and professional development. So, although I lack a paycheck, I don't feel aimless. In fact the truth is quite the opposite: for the first time I feel as though my fate is all my own.
+
+Finally, this suggests that a meaningful change to baseline mood is possible, at least for the nearly 5 months since I announced my resignation. Perhaps, if I could stretch my sabbatical out to multiple years, I would start to see a return to pre-regination mood levels. But for now I'll take this to mean that circumstance matters quite a bit, even when my circumstance was already quite good to begin with. Granted, this is a rather drastic change that is out of reach to many, and for me cannot be permanent. Eyeballing the timeseries, it doesn't look as though smaller changes like purchases or vacations had a lasting affect on mood. I haven't done the formal analysis there, but perhaps I'll take it up in a follow on post.
+
+** Labels
+The context included along with the samples can answer two questions. First, how do I tend to spend my time? Second, how do different contexts affect my mood?
+
+To anwser these questions, I first needed to clean the context data. The free form nature of the responses (I could type anything I wanted into the SMS message) led to some inconsistent labeling. I first corrected any typos, for example, renaming all instances of "worj" to "work". Because the label space was rather sparse, I then did my best to manually compress the space, mapping labels like "dinner" and "lunch" to a common label like "eating". I realize this is not very scientific, and I could have inadvertantly biased the data depending on how I set up the groupings, but for now I'll press on. I have ideas about how to improve this going forward in section [[Next Steps]]. I also discarded any samples that lacked context data. A lack of label was more likely due to laziness than there actually being no context. Again, this could lead biases and I've since made some changes to the way I collect this data, again outlined in section [[Next Steps]].
+
+I look first at the proportion of labeled samples containing a given label. This answers the question of how I spend my time.
+
+#+CAPTION: The proportion of samples with context that contain a given label. Note the reports can contain more than one label, and some reports contain no labels (reports without labels are not counted toward the total). Only labels that occur in at least 20 samples are included.
+[[http://media.usrsb.in/moodbot/label_proportions.png]]
+
+Work is by far the place were I spent the bulk of my time, taking up nearly 45% of my waking hours. In light of this, it's no surprise that a change to work could have such a drastic effect on my overall mood, as dicussed in section [[Life Events]]. After a steep drop off, the next most common labels are leisure, eating, spending time on hobbies, and cooking. My former employer will be happy to see that "goofing off", which I define as being at work, but not working, took up less than 2.5% of my time. Overall, these labels aren't too much of a surprise. I'm an introvert, so it makes sense that after work I spend much of my free time on solitary activities like reading and hobbies and less than 5% of my time socializing. It's also nice to see that I actually have quite a bit of leisure time, even though it often doesn't feel that way (at least pre-sabbatical it didn't). Leisure, hobby, and reading add up to over 25%.
+
+Next I look at the average mood associated with a given label. This shows how different labels affect my mood. If the average sample with the label "socializing" is a 4, I can have some confidence that socializing increases my mood.
+
+#+CAPTION: Samples are grouped by label. The average mood of each group is calculated and plotted. Because samples can contain multiple labels, samples can also be in multiple groups. This show how different labels are correlated with different moods.
+[[http://media.usrsb.in/moodbot/average_mood_per_label.png]]
+
+Drinking makes the top spot, with an average mood slightly over 4. This is followed by outdoors (which is mostly composed of hiking), and coffee (which I used if I was currently drinking coffee or had drank it in the past hour). In fourth is socializing. All of these labels are significantly above 3, in the 3.5 to 4 range. On the other end of the spectrum, starting with the worst, is worrying, being in pain, being tired, and working. The first three are all in the 1.5 to 2 range, and then there's a steep climb to work, which is slightly over 2.5.
+
+As the ancient proverb says, "Avoid drugs not because they're bad, but because they're very good." Substances make a good, perhaps too good, showing with alcohol and caffeine taking two of the three top spots. This isn't too surprising. Both melt away anxiety and induce a mild euphoria. But this is somewhat disappointing, as they're not acitivities I want to optimize for given the obvious health risks. 
+
+Thankfully, outdoors comes in second, which is something I can optimize for. My hypothesis is that it's mostly the exercise component of being outdoors that boosts my mood. Having beautiful surroundings helps too, but anecdotally, I've noticed a similar boost after going to the gym. I only started going to the gym a couple months ago, so it hasn't shown up in the rankings yet. But if exercise is a mood booster, why does walking show up so low? My guess is that walking doesn't raise my heart rate enough to trigger endorphins. Futher much of the walking was either to or from work, which is a mood depresser.
+
+Socializing comes in fourth. Being an introvert, this was surprising, but upon reflection, I think my aversion to socializing is myopic. I fret in the moments leading up to it, but once I'm actually doing it, it's usually enjoyable. It not something that comes naturally to me, but the data is unequivocal. I should make more of an effort here.
+
+On the other end of the spectrum is work, worrying, pain, and tiredness. No surprises here. As discussed in section [[Life Events]] work exerts a negative effect on mood and this analysis further confirms that.
+
+In the future, I'd like to run a regression on these variables and see if I can tease apart any of the effects further. For example, perhaps drinking ranks highly partly because it's often combined with socializing and eating. And perhaps I can see how much of the outdoors effect is due to exercise.
+
+** Markov Process
+How does my current mood affect my future mood? If I'm a 3 now, what am I likely to be in a hour? One way of answering this question is by modeling the data as a Markov process. This works by counting transitions between moods and deriving probabilities from those counts. If I'm a 3 now, and during the next sample I'm a 4, I add one to the 3 -> 4 transition count. I count all transitions in this way, and use those counts to calculate the odds of specific transitions. If 30% of transitions from the 3 state go to 4, then I can conclude that, if I'm currently a 3, there's a 30% chance I'll be a 4 during the next sample. Running all these calcluations, I can produce a graph of the Markov process.
+
+#+CAPTION: My mood as a Markov process. Each node is a mood, 1 through 5, and each edge represents a transition. The edges are weighted by probability of transition. Edges with less than 5% probability are elided.
+[[http://media.usrsb.in/moodbot/mood_markov.png]]
+
+There appear to be two properties that underly this process. The first is that 3, the neutral mood, seems to exert gravity. The second is that nearly all states exhibit inertia.
+
+3 is a gravity well in the sense that other states tend to flow into it. The most likely transition is always to move toward it. If I'm currently a 3, I will most likely remain a 3 on the next sample with 58% probability. If I'm a 2 or a 4, I will most likely move back to 3 on the next sample with 39% and 45% probability. If I'm a 1 or 5, I'll most likely transition to 2 or 4, which will most likely send me back to 3. There's a sense in which 3 is downhill of everything and as I move to the extremes, the further uphill I climb.
+
+Moods exhibit inertia in the sense that remaining in the current state is usually the second most probable transition, behind moving toward 3. For example, if I'm currently a 2, there's a good chance I'll stay a 2. The /most/ probable transition is 3 (39%), but remaining a 2 comes in a close second (36%). 4 also exhibits this pattern. I'm most likely to be pulled in by the gravity of 3 (45%), but the second most likely transition is to remain a 4 (44%). 1 again exhibits this. I most likely move toward 3 via 2 (37%), but I'm liable to stay a 1 with 32% probability. 5 is the only state that diverges from this pattern. Alas, joy is so fleeting that remaining a 5 is only the third, rather than second, most probable transition (12%) behind transitions to 4 (58%) and 3 (21%).
+
+This graph also tells a story similar to the histograms, where at the extremes 1 has a higher count than 5, but in the middle 4 has a higher count than 3. Similarly, in the Markov process, 1 has more inertia than 5, but moving in one level, 4 has more intertia than 3. In other words, despair is more self perpetuating than joy, but mild happiness is more self perpetuating than mild sadness. I suppose that's not a terrible deal.
+
+Overall, I am quite pleased with the signal to noise ratio in this analysis. Since I wasn't logging all transitions between moods, I was worried deriving transition probabilities wouldn't be meaningful. After all, the probabilities in the graph are not technically transition probabilities, they're probabilities of what /the next sample/ will be. In the time between samples, it's possible many transitions could have occured. Despite that, the Markov model appears to pick up on something real. It paints a picture of a sort of psychological homeostatis--a system always working to return to its neutral state. This makes me wonder if it could be used as a diagnostic tool. Do people suffering from depression exhibit gravity wells in state 1? Do bipolar people exhibit wells at 1 and 5? Do the anhedonic exhibit particular strong gravity at state 3? I am not a psychologist, so I can only speculate, but the possibilities are tantalizing.
+
+* Next Steps
+
+Going forward, I have several improvements in mind, some of which have already been implemented. 
+
+** Sampling Tools
+*** Reporter
+First, I've improved the way I do data collection. I've started using [[http://www.reporter-app.com/][Reporter]], an iOS app, and have since retrired my bespoke AWS and Twilio setup. The main reason for switching is Reporter drastically reduces the friction to filling out a report. Rather than having to enter everything manually into a text message, it supports multiple choice dropdowns. In particular, it has a 'Tokens' feature which is something like a dropdown plus a text box. If the item I'm looking for isn't already in the dropdown, I can enter in the text box and the next time I'm prompted it's added to the dropdown. This is perfect for sampling context. I rarely need to type a new label, and it keeps my labels consistent. Hopefully this will help with some of the issues mentioned in section [[Labels]].
+
+If you plan on setting up your own experience sampling project, I can't emphasize enough the importance of lowering sample friction. In my opinion, keyboard entry is a non-starter and is part of the reason samples dropped off in the later part of the sampling period (see the time series graph).
+
+The reduction in sample friction has also allowed me to add many more questions to my survey. I now have questions about stress, energy level, exercise, meditation, and sleep quality. It also uses the sensors to automatically capture location, sound level, and some other things. I look forward to exploring this data.
+
+I will say that Reporter's built in data analytics features are pretty weak. Plan on exporting the data and exploring it yourself, otherwise I'm not sure it will deliver much value.
+
+*** Sleep Cycle
+I've also started using some automated tracking tools. In particular, [[https://www.sleepcycle.com/][Sleep Cycle]] claims to be able to analyze my sleep patterns by enabling the microphone while I sleep. I haven't used it for long, so it remains to be seen how well it works, but it does seem to at least identify when I'm sleeping and when I wake up in the middle of the night.
+
+#+CAPTION: Example of a single night's sleep analysis.
+[[http://media.usrsb.in/moodbot/sleep_cycle.png]]
+
+*** iOS Health
+
+I also realized iOS's Health app has been keeping track of all my step data for several years now. I plan digging through this data soon. This also seems like a good place to enter things like weight, body fat, and exercise. All data appears to be exportable.
+
+*** MyFitnessPal
+
+[[https://www.myfitnesspal.com/][MyFitnessPal]] is perhaps the most ambitious of the tools I'm using. I'm attempting to keep track of diet, but food logging is tedious to say the least. I think it would be neat to be able to dig up correlations between nutrition and mood, or sleep quality, or energy level, but staying motivated to use this app is a struggle.
+
+** Conclusion
+
+
+* Footnotes
+
+[fn:1] _Thinking, Fast and Slow_. Kahneman, Daniel. p 379. Kindle Edition.
+[fn:2] _Stumbling on Happiness_. Gilbert, Daniel.
+[fn:4] Sampling started at 8:00 AM and ended at 11:00 PM. There are 168 five minute periods in that time range, so the coin was flipped every five minutes with p = 10/168 for an average of 10 samples per day.
+[fn:hedonic] "The hedonic treadmill, also known as hedonic adaptation, is the observed tendency of humans to quickly return to a relatively stable level of happiness despite major positive or negative events or life changes." https://en.wikipedia.org/wiki/Hedonic_treadmill
+

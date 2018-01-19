@@ -40,7 +40,15 @@ main = hakyll $ do
     match "posts/*.lhs" $ do
         route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
         compile $
-          --pandocCompilerWith (def {readerExtensions = S.singleton Ext_literate_haskell}) (def {writerExtensions = S.singleton Ext_literate_haskell})
+          pandocCompiler
+          >>= loadAndApplyTemplate "templates/post.html"    postCtx
+          >>= saveSnapshot "content"
+          >>= loadAndApplyTemplate "templates/default.html" postCtx
+          >>= relativizeUrls
+
+    match "posts/*.org" $ do
+        route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
+        compile $
           pandocCompiler
           >>= loadAndApplyTemplate "templates/post.html"    postCtx
           >>= saveSnapshot "content"

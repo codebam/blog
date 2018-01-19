@@ -1,0 +1,82 @@
+body{
+    text-align:center;
+    margin:1em 0 0 0;
+    vertical-align:middle;
+    font-family:'Quattrocento', serif;
+    font-size:1.1em;
+    background-color:white;
+    padding:2em}
+h1{
+    font-weight:normal
+}
+h2{
+    line-height:1.25em;
+    font-weight:normal
+}
+a:link{
+    text-decoration:none;
+    color:#0055AD
+}
+a:hover{
+    text-decoration:underline;
+    color:#000000
+}
+#content{
+    text-align:left;
+    max-width:800px;
+    margin:0 auto;
+    line-height:1.5em
+}
+sup{
+    vertical-align:top;
+    position:relative;
+    top:-0.5em;
+    font-size:0.7em
+}
+#toclinks{
+    width:600px;
+    text-align:center;
+    margin:0 auto;
+    line-height:125%
+}
+#title{
+    text-align:center;
+    max-width:600px;
+    margin:0 auto
+}
+li{
+    margin:.5em 0 .5em 0
+    line-height:1em
+}
+#navlist li{
+    display:inline;
+    list-style-type:none;
+    padding-right:20px;
+    font-weight:bold;
+    margin:0 0 0 0
+}
+blockquote{
+    background:rgba(220, 227, 229, 0.44);
+    margin:0em 0em;
+    padding:0.1em 0.5em
+}
+div.sourceCode{
+    background-color:rgba(220, 227, 229, 0.44);
+    margin:0em 0em;
+    padding:0.1em 0.5em
+}
+p.caption{
+    text-align:center;
+    padding-left:8em;
+    padding-right:8em;
+}
+div.figure{
+    text-align:center;
+}
+table, th, td {
+    margin-left:auto;
+    margin-right:auto;
+    border-collapse:collapse;
+    border: 1px solid black;
+    padding:0.25em;
+}
