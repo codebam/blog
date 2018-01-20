@@ -46,10 +46,15 @@ main = hakyll $ do
           >>= loadAndApplyTemplate "templates/default.html" postCtx
           >>= relativizeUrls
 
+    let orgWriterOptions = defaultHakyllWriterOptions
+          { writerNumberSections = True
+          , writerExtensions = S.fromList [Ext_auto_identifiers, Ext_implicit_header_references]
+          }
+          
     match "posts/*.org" $ do
         route   $ metadataRoute $ \m -> customRoute (\i -> fromJust (lookupString "permalink" m) ++ ".html")
         compile $
-          pandocCompiler
+          pandocCompilerWith defaultHakyllReaderOptions orgWriterOptions
           >>= loadAndApplyTemplate "templates/post.html"    postCtx
           >>= saveSnapshot "content"
           >>= loadAndApplyTemplate "templates/default.html" postCtx
