@@ -1,0 +1,123 @@
+---
+title: 'Org-mode: An integrated language and editor'
+author: Alex Beal
+date: 2018-01-21
+type: post
+permalink: org-mode
+description: 'Thoughts on the deep editor integration of org-mode.'
+image: 'http://media.usrsb.in/org-mode/org-mode.png'
+---
+
+I've been using emacs org-mode on and off for several years now, and it's one of those tools that seems to expand every time I pick it up. I'm constantly discovering some new corner of the org-mode universe. Years later, my knowledge still hasn't plateaued.[fn::In fact, many tools that have captured my imagination share this trait. I've been 'learning' Haskell for 5+ years now, and I'm long past the point where I'm proficient, but there's still always some new corner of the language or ecosystem to explore. This is perhaps one of its strengths and one of its weaknesses.]
+
+Org-mode is so expansive that explaining it to someone who hasn't used is a challenge. It's part calendar, part to do list, part literate programming editor, part interactive notebook (in the style of iPython), part spreadsheet, part link-able document web (in the style of wikipedia). I've heard of it being used to typeset academic articles (you can export to pdf), and I personally use it as a blog post editor and note taking app. Some use it as a time sheet, keeping track of billable hours.
+
+If you haven't used it before, it probably sounds like a complete mess.
+
+I think what makes it manageable is it's a powerful example of thinking deeply about not just a language, /but also thinking deeply about how that language is edited/. In other words, the editor is /not/ an afterthought.[fn::Contrast this with a tool like Haskell, which wants for nothing in terms of language features, but lags behind more mainstream tools in the editor department.] In fact, org-mode files are just plain text documents. They could be edited in vim, but its deep integration with emacs is what makes it shine. What follows are some examples.
+
+
+* Tables and Spreadsheets
+
+If I enter the following text into org-mode I've started creating a table.
+
+#+BEGIN_SRC org
+  | Name|Twitter Username|
+  |-
+  | Alex Beal|@beala |
+  | Twitter|@twitter|
+#+END_SRC
+
+Once I hit =C-c C-c=, the table is automatically reformatted into the following shape.
+
+#+BEGIN_SRC org
+  | Name      | Twitter Username |
+  |-----------+------------------|
+  | Alex Beal | @beala           |
+  | Twitter   | @twitter         |
+#+END_SRC
+
+Once it's exported, it looks like this
+
+| Name      | Twitter Username |
+|-----------+------------------|
+| Alex Beal | @beala           |
+| Twitter   | @twitter         | 
+
+And of course, it comes with a host of hot keys that allow you to manipulate the table, like removing columns, shifting rows up and down, etc.  
+
+The spreadsheet functionality is quite neat, too. Here's an example of adding two cells together.
+
+#+BEGIN_SRC org
+  | foo | bar | result  |
+  |-----+-----+---------|
+  |   1 |   2 | :=$1+$2 |
+#+END_SRC
+
+After calling eval with =C-c C-c=, it will evaluate the formula and store it to a special field.
+
+#+BEGIN_SRC org
+  | foo | bar | result |
+  |-----+-----+--------|
+  |   1 |   2 |      3 |
+  ,#+TBLFM: @2$3=$1+$2
+#+END_SRC
+
+Rendering looks just like a normal table.
+
+| foo | bar | result |
+|-----+-----+--------|
+|   1 |   2 |      3 |
+#+TBLFM: @1$3=$1+$2
+
+The possibilities go on and on. You can even [[https://orgmode.org/manual/Org_002dPlot.html#Org_002dPlot][plot]] your data from org-mode.
+
+The point is, not only does it provide a way of typesetting tables and spreadsheets, its deep editor integration can clean up formatting, evaluate spreadsheets, and manipulate those spreadsheets. In other words, it's not just a markup language. It's not even just a language. It's a language deeply integrated with its editor.
+
+* Integrated Code Editing
+
+If I want to include a code snippet in a blog post, an article, to-do list, whatever, I type the following to use [[https://orgmode.org/worg/org-contrib/babel/][babel]] inside of org-mode.
+
+#+BEGIN_SRC org
+  ,#+BEGIN_SRC haskell
+  ,#+END_SRC
+#+END_SRC
+
+I then press src_text{C-c C-'} to open a fresh buffer in haskell-mode and enter my code. (If you're unfamiliar with emacs, note that haskell-mode gives me all the niceties you'd expect from a basic editor, such as syntax highlighting)
+
+#+BEGIN_SRC haskell
+  let x = 1 in x + x
+#+END_SRC
+
+I save and close the buffer, and the code snippet I wrote is inserted into the code fences:
+
+#+BEGIN_SRC org
+  ,#+BEGIN_SRC haskell
+  let x = 1 in x + x
+  ,#+END_SRC
+#+END_SRC
+
+I can even evaluate the code snippet in =ghci= by typing =C-c C-c=.
+
+#+BEGIN_SRC org
+  ,#+BEGIN_SRC haskell
+  let x = 1 in x + x
+  ,#+END_SRC
+
+  ,#+RESULTS:
+  : 2
+#+END_SRC
+
+And of course it renders nicely, too.
+
+#+BEGIN_SRC haskell
+let x = 1 in x + x
+#+END_SRC
+
+#+RESULTS:
+: 2
+
+So, once again, not only does org-mode give me a nice way to typeset code, its deep editor integration gives me a way of manipulating and interacting with that code.
+
+* Conclusion
+Hopefully I've convinced you that org-mode is a powerful tool, but more importantly, hopefully I've convinced you that editor integration matters, and that it matters enough that it should be considered in conjunction with the design of the language itself. I'm hardly the first person to realize this. Much of this thinking is due to a [[https://twitter.com/deech/status/943683980108423168][conversation]] with [[https://twitter.com/deech][@deech]].[fn::I should be careful here, though. I don't want to put words in his mouth. My impression is that he wants even deeper integration than emacs provides] My hope is to add to the conversation by highlighting the wisdom of org-mode.
