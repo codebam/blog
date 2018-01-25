@@ -35,7 +35,7 @@ sup{
     font-size:0.7em
 }
 #toclinks{
-    width:600px;
+    width:60%;
     text-align:center;
     margin:0 auto;
     line-height:125%
@@ -83,4 +83,7 @@ p.caption{
 }
 span.header-section-number:after{
     content:". "
+}
+img {
+    max-width:100%;
 }

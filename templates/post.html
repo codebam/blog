@@ -9,6 +9,31 @@
 <br>
 <br>
 <br>
+<button class="show-comments">Load Disqus Comments</button>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+	  // https://gist.github.com/nternetinspired/7482445
+	  var disqus_config = function () {
+                this.page.url = "http://usrsb.in/$permalink$.html";
+                this.page.identifier = "$permalink$";
+              };
+	  $$(document).ready(function() {
+	  $$('.show-comments').on('click', function(){
+              // ajax request to load the disqus javascript
+              $$.ajax({
+                type: "GET",
+                url: "https://usrsbin.disqus.com/embed.js",
+                dataType: "script",
+                cache: true
+              });
+              // hide the button once comments load
+              $$(this).fadeOut();
+	    });
+	  });
+</script>
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
