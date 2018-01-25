@@ -1,0 +1,60 @@
+---
+title: 'Learning Deep Learning'
+author: Alex Beal
+date: 2018-01-24
+type: post
+permalink: learning-deep-learning
+description: "I'm not an expert in deep learning, but I have some experience learning deep learning."
+image: 'http://media.usrsb.in/learning-deep-learning/dl.png'
+---
+
+What follows are some resources I've found useful for self study in deep learning. Since I can only write authoritatively about my own path, this assumes a traditional four year degree in computer science, covering probability, statistics, linear algebra, and calculus. I've listed some online math courses that I've used as supplements or refreshers, but I expect using them as your first exposure to the topics will add considerably to the workload. If you have no programming experience whatsoever this is probably not the list for you (sorry, I don't mean to be elitist, but I'm just not sure what the best resources are for self study in computer science in general). 
+
+All of the resources below I have personally vetted. It's a bit of a pet peeve of mine when people name resources they've "heard are good" but would take years for me to shuffle through. As a corollary, if your favorite resource isn't here, it's probably because I haven't personally vetted it, rather than because I think it's bad.
+
+Finally, to be clear about my credentials, I'm still a novice when it comes to machine learning, but I do have some experience learning machine learning.
+
+* Machine Learning Resources
+These are my recommended resources for machine learning, listed roughly from foundational to advanced.
+
+** Lectures: [[https://www.coursera.org/learn/machine-learning][Coursera's /Machine Learning/]]
+Andrew Ng's Machine Learning course is hard to beat as a foundational course in machine learning. It doesn't cover deep learning in depth, but what it lacks there it makes up in breadth, covering many traditional techniques such as linear regression, logistic regression, SVM, and more. Although these techniques aren't the state of the art, my impression is that they're still widely used. They also give you a chance to see optimization problems in a simpler context (which is at the heart of deep learning), and build up intuition for the rationale behind neural nets (in the sense that they're a stack of non-linear regressions). My only critique is the horrible language, Octave, that Ng uses for all the assignments. If you're up for it, I'd recommend doing the assignments in Python, which is more widely used in industry.
+
+
+** Lectures: [[http://cs231n.stanford.edu/][Stanford's /Convolutional Neural Networks for Visual Recognition/]]
+
+Kudos to Stanford for putting this course online and doing the world a huge service. This is a great next step after mastering Coursera's machine learning course. It's taught by Professor Fei-Fei Li and her students, who as I understand it, have been leading the charge in many of the recent breakthroughs in deep learning and visual recognition. This bridges the gap from the traditional neural nets taught in the Coursera course to more modern convolutional architectures, which have been at the heart of the recent revolution in visual recognition.
+
+** Book: [[http://www.deeplearningbook.org/][/Deep Learning/]]
+
+As far as I know, this is the most authoritative and up to date text on deep learning. It's very dense and mathematically deep, so I don't recommend it as a first text, but it's good as a companion to the Stanford course and will help if one of your goals is to understand academic articles.
+
+* Math Resources
+
+Here are some of my favorite math resources that are also helpful in the context of deep learning. These are listed in no particular order. Having some knowledge of both is required for having more than a superficial understanding of machine learning.
+
+** Lectures: [[https://ocw.mit.edu/courses/mathematics/18-06-linear-algebra-spring-2010/][MIT's /Linear Algebra/]]
+
+It wouldn't be an understatement to say that this is the course that made me fall in love with linear algebra. Professor Strang's pedagogical skills are nothing short of miraculous. All math teachers should be required to watch and study these videos. I know I sound like a total fan boy, but I really love this course. It helped get me through linear algebra in college, and I find myself returning to it years later.
+
+** Lectures: [[https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-041-probabilistic-systems-analysis-and-applied-probability-fall-2010/][MIT's /Probabilistic Systems Analysis and Applied Probability/]]
+
+Another great course out of MIT. Deep concepts in probability are putty in Professor Tsitsiklis's hands.
+
+* Online Forums, Articles, Etc
+
+** Forum: [[https://www.reddit.com/r/MachineLearning/][Machine Learning Subreddit]]
+
+I drop in here from time to time. It's a decent way of keeping abreast of what the machine learning community is excited about. Granted, it is a subreddit, so adjust your expectations accordingly. Also keep in mind that what the community is excited about is /not/ the same thing as what's actually used in practice.
+
+** Blog Post: [[https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html][/The 9 Deep Learning Papers You Need To Know About/]]
+
+I enjoyed this as a survey of some of the recent advances in deep learning convolutional architectures. Read this and then read the papers he links to. When others describe their solutions to machine learning problems, having this survey of architectures is indispensable. 
+
+* Parting Notes
+
+First a note on getting through these courses. My own approach was full of spurts and false starts. Some of these courses I haven't finished. And by listing /Deep Learning/ as a text I don't mean to imply that I sat down and read it cover to cover. I've taken these at my own pace, over the course of several years, often times cherry picking sections that interest me.
+
+Second, in terms of practical experience, I can't recommend participating in a Kaggle competition highly enough. I recommend diving in, beating your head against the Tensorflow API for days or even weeks, and then studying the winners' solutions (hopefully they will be gracious enough to share a write up in the forums after the fact). I recently [[./first-kaggle-competition.html][did this myself]] and it was a great experience.
+
+Third, I'm very interested in what learning resources you recommend. In particular, I'd like to learn more about non-convolutional designs. Hit me up over email, listed in the [[./about.html][About]] page, or over Twitter at [[https://twitter.com/beala][@beala]].

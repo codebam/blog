@@ -1,0 +1,103 @@
+---
+title: 'What I Learned Participating in My First Kaggle Competition'
+author: Alex Beal
+date: 2018-01-23
+type: post
+permalink: first-kaggle-competition
+description: 'Reflections on my first Kaggle competition.'
+image: 'http://media.usrsb.in/first-kaggle/kaggle.png'
+---
+
+I just wrapped up my first Kaggle competition. Going into the competition, my goal was to place in the top 100. It was a pretty ambitious goal, given that I've never built a deep learning model and have never used Tensorflow. In the end, I fell pretty far short of that, at 434th place (top 34%). Despite that, I learned quite a bit and am writing up my experience here. First I'll go over the challenge and how I approached it. Then I'll discuss the top 4 entries. Finally I'll reflect on lessons learned.
+
+* The Challenge
+
+The [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge][challenge]] was to get the best accuracy on a 12 category speech classification problem. Ten of the categories were short words (like "up", "down", "on", and "off") and the final two were "unknown" and "silence". The competition hosts provided a training set of 65,000 wav files labeled with 30 words. 20 of the 30 words were examples of "unknown" words and there were a few examples of "silence". They also provided an unlabeled test data set of around 150,000 wav files. Scoring was performed by using your model to label the test data set and uploading those labels to the Kaggle website. The website returned an accuracy score between 0 and 1 to two decimal places.
+
+* My Solution
+I won't spend too much time on my solution, since it did not perform well, but it's worth going over to contrast with the winning solutions. The high level idea was to convert the raw wavs into Mel-Frequency Cepstral Coefficients (MFCC), which is a sort of spectrogram that represents human hearing better than a raw spectrogram. I used the Tensorflow sample code to do this and plugged in my own model. You can read more about it, including a visualization of a spectrogram, [[https://www.tensorflow.org/tutorials/audio_recognition#how_does_this_model_work][here]]. Given that MFCCs resemble images, in that they're matrices with a width and height, I could then apply standard image classification techniques, namely a convolutional neural net. My best scoring architecture was inspired by VGG, but with less layers.[fn:vgg-paper]
+
+| Type    | Filter Count | Filter Size | Stride |
+|---------+--------------+-------------+--------|
+| Conv2d  |           64 |         3x3 |      1 |
+| MaxPool |              |         2x2 |      2 |
+| Conv2d  |          128 |         3x3 |      1 |
+| MaxPool |              |         2x2 |      2 |
+| Conv2d  |          256 |         3x3 |      1 |
+| Conv2d  |          256 |         3x3 |      1 |
+| MaxPool |              |         2x2 |      2 |
+| Conv2d  |          512 |         3x3 |      1 |
+| Conv2d  |          512 |         3x3 |      1 |
+| MaxPool |              |         2x2 |      1 |
+| FC      |              |             |        |
+| SoftMax |              |             |        |
+
+I used dropout on all convolutional layers except the first, and initialized weights to a normal distribution with a standard deviation of 0.01. I trained with standard stochastic gradient descent.
+
+As far as data augmentation, I randomly pitch shifted and stretched each sample 4 times, expanding my training set 5 fold (the original wav plus 4 augmented wavs). I did the same for the test set, and averaged across the 5 scores to get the final score.
+
+In the end, this model achieved 0.89 on my validation set (which was 10% of the provided training set), but scored only 0.82 against the provided test set. All of the models I tried had large gaps between validation and test, and many people in the forums reported similar results. It would later turn out that almost all of the best models had strategies that addressed this. The root of the issue is that there were more unknown words in the test set than in the training set, so models tended to over fit the 'unknown' category. In other words, the test set contained unknown unknowns.
+
+After creating this model, I spent the rest of my time trying to make the network deeper, hoping it would improve generalization. In retrospect, it was probably just as likely to further over fit the training set, which was already a problem given the differences between the training and test sets. In the end, I didn't get to test this theory. I spent a large amount of time figuring out how to parallelize training because the deeper model wouldn't fit in a single GPU. Once I got that working, I had issues training the model due to what I suspect was poor initialization or perhaps not a large enough batch size (the model would immediately plateau). The VGG paper suggests training a smaller model, and bootstrapping the larger model with weights from the smaller model, but I didn't have time to try this.
+
+* First Place: Heng CherKeng, Ryan Sun, and See
+
+This team won with an accuracy of 0.91060, and a total of 276 entries (this is the number of times they submitted labels to Kaggle for scoring). Their winning model was an ensemble of 30 models, which were mostly convolutional. Individually, the models achieved test set accuracies from 0.86 to 0.88.
+
+Their biggest insight was to use a semi-supervised technique known as pseudo-labeling [[[http://deeplearning.net/wp-content/uploads/2013/03/pseudo_label_final.pdf][PDF]]] to label the test set. This worked by training a model on the training set, and then using that model to label the test set. High confidence predictions from the test set were then added to the training set creating a new augmented training set. New models were then trained on that augmented set. This proved especially effective in this competition because of the gap between the provided training and test sets. In other words, this was a way of training on the unknown unknowns of the test set.
+
+See their full write up [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/discussion/47728][here]].
+
+* Second Place: Thomas O'Malley
+
+O'Malley took second place with a score of 0.91048, and a total of 119 entries. His was an ensemble model created by ensembling the same network architecture with itself, but with some parameter tweaks. He doesn't go into detail on what those parameter tweaks were.
+
+The architecture is a rather straight forward convolutional one, but what makes it so notable is how carefully designed it is. His guiding principle was to "not do any down sampling in the time domain until the very end". The final result is a very elegant model for which each layer is carefully justified, giving his intuition for why it works. Ordinarily I'd be skeptical of such an explanation, but his results speak for themselves. I recommend you check out his [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/discussion/47715#270205][full write up]] and see it for yourself. 
+
+Additionally, his model only had five weighted layers, which is one less than my already somewhat shallow model. Whereas I tried to brute force the problem by adding more layers, O'Malley got by with very few layers. He carefully engineered for the problem domain, and outdid my model by +0.09!
+
+Beyond that he also applied some data augmentation and normalization techniques. He normalized the volume level across the training set, applied time stretching, and ran Vocal Tract Length Perturbation (VTLP) [[[https://pdfs.semanticscholar.org/3de0/616eb3cd4554fdf9fd65c9c82f2605a17413.pdf][PDF]]] on each sample. I didn't dig into VTLP, but he mentions it's partly notable because it is especially fast to apply. Each of these augmentations gave an accuracy gain of around +0.01.
+
+What he didn't do is as notable as what he did do. In particular, there's no mention of attempting to label the test set to create a larger training set. It seems that his model simply generalized well enough, even to the unknown unknowns of the test set. Bravo! I suspect the shallow nature of his architecture may have benefited him here, preventing over fitting to the training set.
+
+See his full write up [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/discussion/47715#270205][here]].
+
+* Third Place: Little Boat
+
+Similar to the first place winners, Little Boat also used an ensemble model, with its constituent models placing around 0.87 accuracy. This ensemble model was composed of many different architectures including VGG, ResNet, DenseNet, and SeNet. The initial ensemble gave 0.89 accuracy, and the boost across the finish line came from a semi-supervised technique for labeling the test data, similar to the first place winners. The ensemble model trained on the test set got the final accuracy up to 0.91013 with a total of 126 entries.
+
+As best I can tell, this semi-supervised technique worked by first training several models on the training data alone. These models were then used to label the test set, and additional models were trained on the training set plus some fraction of the labeled test set. These models were then trained again on the entire test set followed by a fine tuning phase over the original training set. The final fine tuning phase was to ensure the models weren't over fitting the test set.[fn::It's not clear to me why, in the context of this competition, over fitting the test set would be a bad thing.] The final ensemble was made up of some combination of these models.
+
+See the full write up [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/discussion/47722][here]].
+
+* Fourth Place: Giba, Aleksey Kharlamov, Pavel Ostyakov, Dmytro Poplavskiy, and feels\_g00d\_man
+
+This was another ensemble model with a final score of 0.90931 and 195 entries. It's notable because the ensemble wasn't only horizontally composed, but also vertically composed. The first level was composed of VGG and ResNet models. These took as input a variety of wav representations including the raw wav, spectrograms, etc (i.e., not just the MFCC like my model). The outputs of these models were fed into a second layer made up of more classic machine learning techniques such as random forests and simple neural nets. Finally, the output of this level was fed into a weighted mean. Interestingly, the weights of this mean were computed by another neural net. He also applied a variety of augmentation techniques that gave accuracy boosts in the range of fractions of a percent.
+
+To address the problem of unknown unknowns, they generated their own made up words by splicing together wav files from the training set. They also did some amount of semi-supervised labeling of the test set explained [[https://github.com/heyt0ny/TensorFlow-Speech-Recognition-Challenge-Solution#unknown-unknowns][here]].
+
+One last interesting detail: the results from the first layer were fed into the second layer by saving the output of the first layer into a giant CSV and then having the second layer models read from the CSV. In other words, they didn't implement the whole model as a monolith which would have taken longer to iterate on. Instead, they saved intermediate results and fed them into later stages.
+
+Overall, this struck me as an everything-but-the-kitchen-sink strategy (maybe everything-including-the-kitchen-sink). No matter, it performed quite well.
+
+See the full write up [[https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/discussion/47674][here]].
+
+* Conclusion
+
+One thing to notice about the winning teams is that all of them submitted many many entries. Part of this was out of necessity: since the training and test sets were so different, validation scores couldn't be trusted. Despite that, I think this also shows just how much experimentation these teams went through to arrive at their final models. All of these teams had over 100 entries. I finished the competition with 17. Even worse for me, their /final/ models were usually ensembles composed of more models than I had trained during the entirety of the competition. The lesson here is loud and clear: I needed to have more experiments running in parallel. Rather than having a laser focus on making my single model deeper, I should have also been trying other architectures like ResNet and and Inception, and other wav representations like raw wav and spectrogram. As a corollary, using known good models, rather than trying to craft my own, probably would have benefited me. 
+
+The exception to this is O'Malley's beautiful entry, but this feels like an outlier so I'm not sure what conclusion to draw from it. Either he got extremely lucky, or he has an extraordinarily good intuition for deep nets. I think his design is something to aspire to, but the alternative strategy of going massively parallel on experimentation is perhaps more effective for us mere mortals.
+
+The second lesson is that all of the winning entries were ensembles. Indeed, many of these entries were ensembles composed of models that wouldn't have, by themselves, won the competition. I had several models with an accuracy around 0.82, and perhaps if I had ensembled them I could have moved up a bit in the rankings.
+
+The third lesson is that the models don't have to be production ready, or even close to production ready. All that matters is accuracy. The fourth place team, for example, created snapshots of intermediate results by saving them into a giant CSV file. Had I had the forethought to create an ensemble model, I could have used a similar technique to save a huge amount of labor. Rather than creating a large monolithic model in tensorflow that merges all the models in my ensemble, I could have simply saved the output of each model as I went along, and later averaged the outputs with a simple script.
+
+A less positive way of stating all this is that an effective strategy for Kaggle competitions is to throw as much spaghetti against the wall as possible and then ensemble everything that sticks. Three of the top four models were leviathans in terms of ensembling, which left me wondering how scale-able and practical these solutions actually were. At the root of this is an economic lesson: /incentives matter/. The goal of this competition was to maximize accuracy, and that's exactly what people did. A real world engineering problem would have many more constraints, such as performance, scalability, and maintainability, but in the artificial environment of a Kaggle competition, what you get are highly accurate models that work by hook or by crook.
+
+The semi-supervised labeling of the test set is another example of this. If the models cannot generalize to the unknown unknowns of the test set without labeling the test set, it's not clear to me they would perform well in the real world, where there are always additional unknown unknowns to consider. Where these techniques do seem useful is when it's not feasible to hand label all your training data. You could then use these techniques to label parts of your training set. That said, I suspect that was not the purpose of the test set. I suspect the competition hosts deliberately added unknown unknowns to the test set in order to simulate real world accuracy, and it was not meant to represent unlabeled training data.
+
+Overall, I consider this competition a success. Although I didn't place well, I started out with zero knowledge of deep learning techniques and over the course of a few weeks, managed to write a parallelized convolutional net in Tensorflow, gained enough theoretical knowledge to read deep learning papers and understand the winners' write ups, and got to work on a real problem. To put it in a positive light, my solution was at least better than average, placing well into the top 50%. I'll take that as win and hope to continue improving in future competitions.
+
+* Footnotes
+
+[fn:vgg-paper] Very Deep Convolutional Networks For Large-Scale Image Recognition. https://arxiv.org/abs/1409.1556v6

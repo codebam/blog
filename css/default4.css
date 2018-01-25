@@ -8,7 +8,8 @@ body{
     padding:2em;
 }
 h1{
-    font-weight:normal
+    font-weight:normal;
+    line-height:1.25em;		    
 }
 h2{
     line-height:1.25em;
@@ -79,4 +80,7 @@ p.caption{
     padding-left:8em;
     padding-right:8em;
     font-size:0.8em;
+}
+span.header-section-number:after{
+    content:". "
 }
